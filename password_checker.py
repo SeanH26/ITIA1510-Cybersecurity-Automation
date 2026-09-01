@@ -61,7 +61,7 @@ print("----------------------------------------")
 
 print("Length verdict: " + length_verdict)
 
-#This conditional displays YES when the password contains at lestleast one digi.
+#This conditional displays YES when the password contains at lestleast one digit.
 if has_digit:
     print("Digit found: YES")
 else:
