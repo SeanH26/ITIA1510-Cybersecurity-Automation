@@ -76,7 +76,7 @@ else:
 print("Rotation verdict: " + rotation_verdict)
 print("----------------------------------------")
 
-#This conditional displays PASS only whgen all of the required Boolean checks are true.
+#This conditional displays PASS only when all of the required Boolean checks are true.
 if overall_pass:
     print("OVERALL: PASS -- password meets all checked criteria")
 else:
