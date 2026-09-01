@@ -44,7 +44,7 @@ else:
 
 length_ok = password_length >= 15
 
-#The overall Booleazn is true onlt when the password is long enough,has a digit< and is not the username.
+#The overall Booleazn is true onlt when the password is long enough,has a digit and is not the username.
 overall_pass = length_ok and has_digit and not_username
 
 #Display the formatted password audit report
