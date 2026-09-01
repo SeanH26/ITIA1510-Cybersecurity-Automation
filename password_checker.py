@@ -26,7 +26,7 @@ else:
 
 has_digit = '0' in password or '1' in password or '2' in password or '3' in password or '4' in password or '5' in password or '6' in password or '7' in password or '8' in password or '9' in password
 
-#This comparison checks whether the password is differnet from the username.
+#This comparison checks whether the password is different from the username.
 not_username = password != username
 
 #This conditional gives a critical warning when the password matches the username.
@@ -44,7 +44,7 @@ else:
 
 length_ok = password_length >= 15
 
-#The overall Booleazn is true onlt when the password is long enough,has a digit and is not the username.
+#The overall Boolean is true only when the password is long enough,has a digit and is not the username.
 overall_pass = length_ok and has_digit and not_username
 
 #Display the formatted password audit report
@@ -61,13 +61,13 @@ print("----------------------------------------")
 
 print("Length verdict: " + length_verdict)
 
-#This conditional displays YES when the password contains at lestleast one digit.
+#This conditional displays YES when the password contains at lest one digit.
 if has_digit:
     print("Digit found: YES")
 else:
     print("Digit found: NO")
 
-#This conditional displays wherther the password mattches the username.
+#This conditional displays wherther the password matches the username.
 if not_username:
     print("Username match: NO")
 else:
@@ -76,7 +76,7 @@ else:
 print("Rotation verdict: " + rotation_verdict)
 print("----------------------------------------")
 
-#This conditional displays PASS only whgen all of the required Voolean checks are true.
+#This conditional displays PASS only whgen all of the required Boolean checks are true.
 if overall_pass:
     print("OVERALL: PASS -- password meets all checked criteria")
 else:
