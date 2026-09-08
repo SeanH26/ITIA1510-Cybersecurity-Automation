@@ -35,7 +35,7 @@ while count < batch_size:
     else:
         length_verdict = "STRONG -- meets NIST SP 800-63B recommendations"
 
-    #This loop checks each character in the password for a digit. It us better than the week 02 verson because it replaces the long chain of or operators
+    #This loop checks each character in the password for a digit. It is better than the week 02 version because it replaces the long chain of or operators
     #with a simple loop.
     has_digit = False
     for char in password:
@@ -77,13 +77,13 @@ while count < batch_size:
 
     print("Length verdict: " + length_verdict)
 
-    #This conditional displays YES when the password contains at lestleast one digit.
+    #This conditional displays YES when the password contains at least one digit.
     if has_digit:
         print("Digit found: YES")
     else:
         print("Digit found: NO")
 
-    #This conditional displays wherther the password mattches the username.
+    #This conditional displays wherther the password matches the username.
     if not_username:
         print("Username match: NO")
     else:
