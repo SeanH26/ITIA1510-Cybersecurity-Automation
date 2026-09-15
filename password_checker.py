@@ -38,7 +38,7 @@ def check_username(password, username):
 
 def check_rotation(rotation_interval):
     """Checks the password rotation interval. Takes an integer number of months. Returns (rotation_ok: bool, rotation_verdict: str)."""
-    #These conditionals classify the rotation interval based on the number of months
+    # These conditionals classify the rotation interval based on the number of months
     if rotation_interval > 12:
         rotation_verdict = "WARNING -- rotation interval exceeds recommended maximum of 12 months"
     elif rotation_interval >= 6:
@@ -113,20 +113,20 @@ def audit_password(account, username, password, rotation_interval):
         failed = 1
 
     print("========================================")
-    # Increases count by 1 to move to the next password in the batch.
 
+    #  Return the results so the main loop can update the batch counters.
     return passed, failed, critical
 
 if __name__ == '__main__':
-    #Sets the batch size to 3 so the program audits 3 passwords each run before displaying the batch summary.
+    # Sets the batch size to 3 so the program audits 3 passwords each run before displaying the batch summary.
     batch_size = 3
     count = 0
-    #These counters are initialized before the while loop to keep track of the number of passwords that pass, fail, and have critical issues.
+    # These counters are initialized before the while loop to keep track of the number of passwords that pass, fail, and have critical issues.
     total_pass = 0
     total_fail = 0
     critical_count = 0
 
-    #Uses a while loop too iterate through the batch of passwords, collecting imput, and evaluating each password against the secutity criteria specified in the program.
+    # Uses a while loop too iterate through the batch of passwords, collecting imput, and evaluating each password against the secutity criteria specified in the program.
     while count < batch_size:
         #Collects the name so the audit report can identify the account being checked.
         account = input("Account or system: ")
@@ -134,14 +134,14 @@ if __name__ == '__main__':
         #Collects the username to make sure the password does not match it.
         username = input("Username: ")
 
-        #Collect the password to so the program can check if it meets the security criteria specififed below.
+        # Collect the password to so the program can check if it meets the security criteria specififed below.
         password = input("Password: ")
 
         # Collect and convert the rotation interval to an integer.
         rotation_interval = input("Rotation interval (months): ")
         rotation_interval = int(rotation_interval)
 
-        #Audit the pasword and recieve the three counter values
+        #Audit the pasword and recieve the three counter values.
         passed, failed, critical = audit_password(
             account,
             username,
@@ -154,10 +154,10 @@ if __name__ == '__main__':
         total_fail += failed
         critical_count += critical
 
-        #Moves to the next password in the batch.
+        # Moves to the next password in the batch.
         count += 1
 
-    #Prints the batch summary after all passwords have been audited.
+    # Prints the batch summary after all passwords have been audited.
     print()
     print("========================================")
     print("   BATCH AUDIT SUMMARY")
