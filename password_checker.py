@@ -1,3 +1,6 @@
+#known_breached is defined outside __main__ so the breach list is available
+# to the checking functions and can also be imported/reused by other modules.
+
 known_breached = [
     "password",
     "password123",
@@ -16,6 +19,7 @@ def check_length(password):
     """Checks password length against NIST SP 800-63B thresholds. Takes a password string. Returns (length_ok: bool, length_verdict: str)."""
     password_length = len(password)
 
+    #Different password lengths receive different descriptive verdicts.
     if password_length < 8:
         length_verdict = "WEAK -- does not meet minimum length requirements"
     elif password_length <= 11:
@@ -72,6 +76,8 @@ def check_breach(password, known_breached):
     """Checks whether a password appears in the known breached password list."""
 
     #The in operator checks the list directly instead of manually walking through it with a for loop.
+    # Because the 'in' operator checks membership directly, a manual for loop is
+    # unnecessary when we only need to know whether the password is in the list.
     not_breached = password not in known_breached
 
     return not_breached
