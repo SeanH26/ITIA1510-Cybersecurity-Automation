@@ -1,4 +1,4 @@
-from password_checker import check_length, check_digit, check_username, check_rotation
+from password_checker import check_length, check_digit, check_username, check_rotation, check_breach, known_breached
 
 # Test check_length with a password that is too short.
 length_ok, length_verdict = check_length("abcd")
@@ -47,6 +47,16 @@ rotation_ok, rotation_verdict = check_rotation(6)
 assert rotation_ok == True
 print("PASS: check_rotation correctly returned True for 6-month interval")
 
+#Test check_breach with a password that is in the known breached list.
+not_breached = check_breach("password123", known_breached)
+assert not_breached == False
+print("PASS: check_breach correctly returned False for breached password")
+
+
+#Test check_breach with a password that is not in the known breached list.
+not_breached = check_breach("Blue-Harbor-72-Lantern", known_breached)
+assert not_breached == True
+print("PASS: check_breach correctly returned True for password not in breach list")
 
 print("----------------------------------------")
-print("All 8 tests passed.")
+print("All 10 tests passed.")
