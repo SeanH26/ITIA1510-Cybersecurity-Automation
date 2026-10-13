@@ -1,13 +1,16 @@
 from password_checker import (
-    audit_password,
-    check_breach,
-    check_digit,
     check_length,
-    check_rotation,
+    check_digit,
     check_username,
-    known_breached,
+    check_rotation,
+    check_breach,
+    load_credentials,
+    load_breached,
+    write_report,
     policy,
 )
+
+known_breached = load_breached("breached.txt")
 
 
 # Test check_length with a password that is too short.
@@ -76,5 +79,39 @@ print("PASS: policy strong_length is 15")
 assert "require_digit" in policy
 print("PASS: policy contains require_digit")
 
+
+# Test that load_credentials returns a list.
+credentials = load_credentials("credentials.txt")
+assert isinstance(credentials, list)
+print("PASS: load_credentials returns a list")
+
+
+# Test that the first credential contains an "account" key.
+assert "account" in credentials[0]
+print("PASS: first credential contains an account key")
+
+
+# Test that load_breached returns a list.
+known_breached = load_breached("breached.txt")
+assert isinstance(known_breached, list)
+print("PASS: load_breached returns a list")
+
+
+# Test that password123 is in the breached password list.
+assert "password123" in known_breached
+print("PASS: load_breached contains password123")
+
+
+# Test that write_report writes the report lines correctly.
+test_lines = ["First report line", "Second report line"]
+write_report(test_lines, "test_report.txt")
+
+with open("test_report.txt", "r") as f:
+    saved_text = f.read()
+
+expected_text = "First report line\nSecond report line\n"
+assert saved_text == expected_text
+print("PASS: write_report correctly saved and retrieved both lines")
+
 print("----------------------------------------")
-print("All 12 tests passed.")
+print("All 17 tests passed.")
