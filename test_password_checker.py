@@ -7,6 +7,8 @@ from password_checker import (
     load_credentials,
     load_breached,
     write_report,
+    save_summary,
+    load_summary,
     policy,
 )
 
@@ -113,5 +115,38 @@ expected_text = "First report line\nSecond report line\n"
 assert saved_text == expected_text
 print("PASS: write_report correctly saved and retrieved both lines")
 
+# Test that saving and loading JSON returns the same dictionary.
+sample = {
+    "total": 2,
+    "passed": 1,
+    "failed": 1,
+    "critical": 1,
+    "failed_accounts": ["Gmail"],
+    "critical_accounts": ["Gmail"],
+}
+
+save_summary(sample, "test_summary.json")
+loaded_summary = load_summary("test_summary.json")
+
+assert loaded_summary == sample
+print("PASS: save_summary and load_summary returned the same dictionary")
+
+
+#Test that failed_accounts remains a list after loading JSON.
+assert isinstance(loaded_summary["failed_accounts"], list)
+print("PASS: failed_accounts is a list")
+
+#Test that no passwords from credentials.txt appear in the JSON file.
+credentials = load_credentials("credentials.txt")
+
+with open("test_summary.json", "r") as f:
+    saved_json = f.read()
+
+#Passwords are excluded because other programs may read the summary.
+for cred in credentials:
+    assert cred["password"] not in saved_json
+
+print("PASS: JSON summary does not contain any passwords")
+
 print("----------------------------------------")
-print("All 17 tests passed.")
+print("All 20 tests passed.")

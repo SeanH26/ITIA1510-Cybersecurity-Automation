@@ -1,4 +1,6 @@
- #Tests and other modules import these rules
+import json
+
+#Tests and other modules import these rules
 policy = {
     "min_length": 8,
     "strong_length": 15,
@@ -56,6 +58,20 @@ def write_report(report_lines, filepath):
         for line in report_lines:
             f.write(line + "\n")
 
+def save_summary(summary, filepath):
+    """Save the audit summary dictionary to a JSON file."""
+
+    # Using with automatically closes the file when finished.
+    with open(filepath, "w") as f:
+        # indent=2 makes the JSON file easier to read.
+        json.dump(summary, f, indent=2)
+
+def load_summary(filepath):
+    """Read the JSON summary file and return its dictionary."""
+
+    # Using with automatically closes the file after reading.
+    with open(filepath, "r") as f:
+        return json.load(f)
 
 def check_length(password, policy=policy):
     """Check password length and return whether it meets the strong threshold and a verdict."""
@@ -257,3 +273,6 @@ if __name__ == "__main__":
         print(line)
 
     write_report(report_lines, "report.txt")
+
+    #Save the audit summary as JSON without including passwords.
+    save_summary(summary, "audit_summary.json")
