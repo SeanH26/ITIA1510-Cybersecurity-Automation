@@ -1,4 +1,6 @@
 import json
+import os
+
 
 #Tests and other modules import these rules
 policy = {
@@ -8,6 +10,7 @@ policy = {
     "good_rotation_months": 6,
     "require_digit": True,
     "check_breach_list": True,
+    "history_runs": 3,
 }
 
 
@@ -58,6 +61,7 @@ def write_report(report_lines, filepath):
         for line in report_lines:
             f.write(line + "\n")
 
+
 def save_summary(summary, filepath):
     """Save the audit summary dictionary to a JSON file."""
 
@@ -66,12 +70,54 @@ def save_summary(summary, filepath):
         # indent=2 makes the JSON file easier to read.
         json.dump(summary, f, indent=2)
 
+
 def load_summary(filepath):
     """Read the JSON summary file and return its dictionary."""
 
     # Using with automatically closes the file after reading.
     with open(filepath, "r") as f:
         return json.load(f)
+
+
+def load_history(filepath):
+    """Read the audit history from a JSON file."""
+
+    # The file won't exist on the first run, so start with an empty list.
+    if not os.path.exists(filepath):
+        return []
+
+    with open(filepath, "r") as f:
+        return json.load(f)
+
+
+def add_to_history(history, summary, keep):
+    """Add a new audit run and keep only the newest entries."""
+
+    if history:
+        # Use the newest run number because trimming makes the list shorter.
+        run_number = history[-1]["run"] + 1
+    else:
+        run_number = 1
+
+    new_run = {
+        "run": run_number,
+        "passed": summary["passed"],
+        "failed": summary["failed"],
+        "critical_accounts": summary["critical_accounts"]
+    }
+
+    history.append(new_run)
+
+    # Trim older runs so the history doesn't grow indefinitely.
+    return history[-keep:]
+
+
+def save_history(history, filepath):
+    """Save the audit history as a JSON file."""
+
+    with open(filepath, "w") as f:
+        json.dump(history, f, indent=2)
+
 
 def check_length(password, policy=policy):
     """Check password length and return whether it meets the strong threshold and a verdict."""
@@ -276,3 +322,8 @@ if __name__ == "__main__":
 
     #Save the audit summary as JSON without including passwords.
     save_summary(summary, "audit_summary.json")
+
+    # Load the previous runs, add this audit, and save the trimmed history.
+    history = load_history("audit_history.json")
+    history = add_to_history(history, summary, policy["history_runs"])
+    save_history(history, "audit_history.json")
