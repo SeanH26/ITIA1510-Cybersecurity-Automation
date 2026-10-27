@@ -1,3 +1,7 @@
+import os
+import tempfile
+
+
 from password_checker import (
     check_length,
     check_digit,
@@ -10,6 +14,9 @@ from password_checker import (
     save_summary,
     load_summary,
     policy,
+    load_history,
+    add_to_history,
+    save_history,
 )
 
 known_breached = load_breached("breached.txt")
@@ -62,6 +69,7 @@ rotation_ok, rotation_verdict = check_rotation(6, policy)
 assert rotation_ok == True
 print("PASS: check_rotation correctly returned True for 6-month interval")
 
+
 #Test check_breach with a password that is in the known breached list.
 not_breached = check_breach("password123", known_breached)
 assert not_breached == False
@@ -73,9 +81,11 @@ not_breached = check_breach("Blue-Harbor-72-Lantern", known_breached)
 assert not_breached == True
 print("PASS: check_breach correctly returned True for password not in breach list")
 
+
 #Test that the policy contains the required strong password length.
 assert policy["strong_length"] == 15
 print("PASS: policy strong_length is 15")
+
 
 # Test that the policy includes the required digit rule.
 assert "require_digit" in policy
@@ -148,5 +158,48 @@ for cred in credentials:
 
 print("PASS: JSON summary does not contain any passwords")
 
+# Test that a missing history file returns an empty list.
+with tempfile.TemporaryDirectory() as folder:
+    filepath = os.path.join(folder, "missing_history.json")
+    assert load_history(filepath) == []
+
+print("PASS: load_history returns an empty list for a missing file")
+
+
+# Test that the first audit run starts at run 1.
+history = add_to_history([], sample, 3)
+
+assert len(history) == 1
+assert history[0]["run"] == 1
+assert history[0]["passed"] == sample["passed"]
+assert history[0]["failed"] == sample["failed"]
+assert history[0]["critical_accounts"] == sample["critical_accounts"]
+
+print("PASS: add_to_history correctly creates the first run")
+
+
+# Test that only the newest 2 runs are kept.
+history = []
+
+for i in range(3):
+    history = add_to_history(history, sample, 2)
+
+assert [entry["run"] for entry in history] == [2, 3]
+
+print("PASS: add_to_history kept only the newest 2 runs")
+
+
+# Test that saving and loading history returns the same list.
+with tempfile.TemporaryDirectory() as folder:
+    filepath = os.path.join(folder, "test_history.json")
+
+    save_history(history, filepath)
+    loaded_history = load_history(filepath)
+
+    assert loaded_history == history
+
+print("PASS: save_history and load_history returned the same list")
+
+
 print("----------------------------------------")
-print("All 20 tests passed.")
+print("All 24 tests passed.")
