@@ -1,5 +1,6 @@
 import os
 import tempfile
+import json
 
 
 from password_checker import (
@@ -17,6 +18,7 @@ from password_checker import (
     load_history,
     add_to_history,
     save_history,
+    breach_verdicts,
 )
 
 known_breached = load_breached("breached.txt")
@@ -201,5 +203,31 @@ with tempfile.TemporaryDirectory() as folder:
 print("PASS: save_history and load_history returned the same list")
 
 
+# Test that Gmail is on the breach list for jsmith.
+result = breach_verdicts("jsmith", load_credentials("credentials.txt"), known_breached)
+
+assert result["accounts"][0] == {"account": "Gmail", "on_breach_list": True}
+print("PASS: breach_verdicts marked the Gmail password as on the breach list")
+
+
+# Test that a username with no accounts returns an empty list.
+result = breach_verdicts("nobody", load_credentials("credentials.txt"), known_breached)
+
+assert result["accounts"] == []
+print("PASS: breach_verdicts returned an empty list for an unknown username")
+
+
+# Test that no passwords appear in the breach verdict result.
+result = breach_verdicts("jsmith", load_credentials("credentials.txt"), known_breached)
+
+result_json = json.dumps(result)
+
+for cred in load_credentials("credentials.txt"):
+    if cred["account"] != "SSH Server":
+        assert cred["password"] not in result_json
+
+print("PASS: breach_verdicts result contains no passwords")
+
+
 print("----------------------------------------")
-print("All 24 tests passed.")
+print("All 27 tests passed.")

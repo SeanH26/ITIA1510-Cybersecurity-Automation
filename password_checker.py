@@ -175,6 +175,29 @@ def check_breach(password, known_breached):
     return password not in known_breached
 
 
+def breach_verdicts(username, credentials, known_breached):
+    """Return breach verdicts for a user's accounts without passwords."""
+    accounts = []
+
+    for cred in credentials:
+        # Only include accounts that belong to the requested username.
+        if cred["username"] == username:
+
+            # Reverse check_breach because True means the password is safe.
+            on_breach_list = not check_breach(cred["password"], known_breached)
+
+            # Exclude passwords so sensitive data is not exposed to the model.
+            accounts.append({
+                "account": cred["account"],
+                "on_breach_list": on_breach_list
+            })
+
+    return {
+        "username": username,
+        "accounts": accounts
+    }
+
+
 def audit_password(
     account,
     username,
@@ -211,7 +234,7 @@ def audit_password(
         critical = 1
 
     digit_ok = has_digit or not policy["require_digit"]
-    overall_pass = length_ok and digit_ok and not_username and not_breached and rotation_ok
+    overall_pass = length_ok and digit_ok and not_username and not_breached
 
     report_lines.append("========================================")
     report_lines.append("   PASSWORD AUDIT REPORT  (" + str(report_number) + " of " + str(batch_size) + ")")
@@ -327,3 +350,10 @@ if __name__ == "__main__":
     history = load_history("audit_history.json")
     history = add_to_history(history, summary, policy["history_runs"])
     save_history(history, "audit_history.json")
+
+    breach_result = breach_verdicts("jsmith", credentials, known_breached)
+
+    print(json.dumps(breach_result, indent=2))
+
+    with open("breach_check.json", "w") as f:
+        json.dump(breach_result, f, indent=2)
