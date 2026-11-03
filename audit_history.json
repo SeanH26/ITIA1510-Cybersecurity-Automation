@@ -1,6 +1,6 @@
 [
   {
-    "run": 2,
+    "run": 5,
     "passed": 2,
     "failed": 3,
     "critical_accounts": [
@@ -9,7 +9,7 @@
     ]
   },
   {
-    "run": 3,
+    "run": 6,
     "passed": 2,
     "failed": 3,
     "critical_accounts": [
@@ -18,7 +18,7 @@
     ]
   },
   {
-    "run": 4,
+    "run": 7,
     "passed": 2,
     "failed": 3,
     "critical_accounts": [
