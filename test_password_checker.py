@@ -19,6 +19,10 @@ from password_checker import (
     add_to_history,
     save_history,
     breach_verdicts,
+    length_verdicts,
+    rotation_verdicts,
+    CHECK_NAMES,
+    run_check,
 )
 
 known_breached = load_breached("breached.txt")
@@ -229,5 +233,42 @@ for cred in load_credentials("credentials.txt"):
 print("PASS: breach_verdicts result contains no passwords")
 
 
+# Test that the VPN password meets the strong length requirement.
+credentials = load_credentials("credentials.txt")
+result = length_verdicts("jsmith", credentials, known_breached)
+
+assert result["accounts"][2] == {
+    "account": "VPN",
+    "long_enough": True
+}
+print("PASS: length_verdicts correctly checked the VPN password")
+
+
+# Test that the SSH Server rotation interval exceeds the limit.
+result = rotation_verdicts("jsmith", credentials, known_breached)
+
+assert result["accounts"][1] == {
+    "account": "SSH Server",
+    "rotation_months": 24,
+    "rotation_ok": False
+}
+print("PASS: rotation_verdicts correctly checked SSH Server")
+
+
+# Test that run_check produces the same breach results.
+result = run_check("check_breach", "jsmith", credentials, known_breached)
+expected = breach_verdicts("jsmith", credentials, known_breached)
+
+assert result == expected
+print("PASS: run_check correctly called breach_verdicts")
+
+
+# Test that an unknown check name is rejected.
+result = run_check("reset_password", "jsmith", credentials, known_breached)
+
+assert result == {"error": "unknown check"}
+print("PASS: run_check rejected an unknown check")
+
+
 print("----------------------------------------")
-print("All 27 tests passed.")
+print("All 31 tests passed.")
