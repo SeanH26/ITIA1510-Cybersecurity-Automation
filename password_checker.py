@@ -198,6 +198,71 @@ def breach_verdicts(username, credentials, known_breached):
     }
 
 
+def length_verdicts(username, credentials, known_breached):
+    """Return password length results for a user's accounts."""
+    accounts = []
+
+    for cred in credentials:
+        if cred["username"] == username:
+            length_ok, length_verdict = check_length(cred["password"], policy)
+
+            accounts.append({
+                "account": cred["account"],
+                "long_enough": length_ok
+            })
+
+    return {
+        "username": username,
+        "accounts": accounts
+    }
+
+
+def rotation_verdicts(username, credentials, known_breached):
+    """Return password rotation results for a user's accounts."""
+    accounts = []
+
+    # Keep known_breached so all three verdict functions use the same parameters.
+    for cred in credentials:
+        if cred["username"] == username:
+            rotation_ok, rotation_verdict = check_rotation(
+                cred["rotation_interval"], policy
+            )
+
+            accounts.append({
+                "account": cred["account"],
+                "rotation_months": cred["rotation_interval"],
+                "rotation_ok": rotation_ok
+            })
+
+    return {
+        "username": username,
+        "accounts": accounts
+    }
+
+
+# These names must exactly match run_check() so the correct function is called.
+CHECK_NAMES = ["check_breach", "check_length", "check_rotation"]
+
+
+def run_check(name, username, credentials, known_breached):
+    """Choose which password check to run based on its name."""
+
+    if name == "check_breach":
+        result = breach_verdicts(username, credentials, known_breached)
+
+    elif name == "check_length":
+        result = length_verdicts(username, credentials, known_breached)
+
+    elif name == "check_rotation":
+        result = rotation_verdicts(username, credentials, known_breached)
+
+    else:
+        # Reject unknown names so only the three approved checks can run.
+        result = {"error": "unknown check"}
+
+    return result
+
+
 def audit_password(
     account,
     username,
@@ -357,3 +422,13 @@ if __name__ == "__main__":
 
     with open("breach_check.json", "w") as f:
         json.dump(breach_result, f, indent=2)
+        
+    all_checks = {}
+
+    for name in CHECK_NAMES:
+        all_checks[name] = run_check(
+            name, "jsmith", credentials, known_breached
+        )
+
+    with open("all_checks.json", "w") as f:
+        json.dump(all_checks, f, indent=2)
