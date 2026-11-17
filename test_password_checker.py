@@ -1,6 +1,7 @@
 import os
 import tempfile
 import json
+import password_checker
 
 
 from password_checker import (
@@ -23,9 +24,13 @@ from password_checker import (
     rotation_verdicts,
     CHECK_NAMES,
     run_check,
+    log_check,
+    read_audit_log,
 )
 
 known_breached = load_breached("breached.txt")
+
+password_checker.AUDIT_LOG = "test_audit_log.jsonl"
 
 
 # Test check_length with a password that is too short.
@@ -270,5 +275,43 @@ assert result == {"error": "unknown check"}
 print("PASS: run_check rejected an unknown check")
 
 
+# Delete the old test log before starting the new tests.
+if os.path.exists("test_audit_log.jsonl"):
+    os.remove("test_audit_log.jsonl")
+
+
+# Test that log_check writes all four required keys.
+log_check("check_breach", "jsmith", {"test": True}, "test_audit_log.jsonl")
+
+entries = read_audit_log("test_audit_log.jsonl")
+
+assert len(entries) == 1
+assert set(entries[0].keys()) == {"check", "result", "time", "username"}
+print("PASS: log_check wrote all four required keys")
+
+
+# Test that run_check logs approved and refused checks in order.
+run_check("check_length", "jsmith", credentials, known_breached)
+run_check("reset_password", "jsmith", credentials, known_breached)
+
+entries = read_audit_log("test_audit_log.jsonl")
+
+assert entries[-2]["check"] == "check_length"
+assert entries[-1]["check"] == "reset_password"
+assert entries[-1]["result"] == {"error": "unknown check"}
+print("PASS: run_check logged approved and refused checks in order")
+
+
+# Test that passwords are not exposed in the audit log.
+with open("test_audit_log.jsonl", "r") as f:
+    saved_log = f.read()
+
+for cred in credentials:
+    if cred["account"] != "SSH Server":
+        assert cred["password"] not in saved_log
+
+print("PASS: audit log contains no passwords")
+
+
 print("----------------------------------------")
-print("All 31 tests passed.")
+print("All 34 tests passed.")
